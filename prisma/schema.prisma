@@ -1,0 +1,209 @@
+// LiftForge database schema.
+// Dev/demo uses SQLite; Community Edition and the cloud instance run the same
+// schema on PostgreSQL by switching the datasource provider + DATABASE_URL.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  passwordHash  String
+  name          String
+  // "user" | "admin"
+  role          String   @default("user")
+  // Billing plan, only meaningful when EDITION=cloud: "free" | "pro"
+  plan          String   @default("free")
+  emailVerified Boolean  @default(false)
+  // "lb" | "kg"
+  unit          String   @default("lb")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  sessions        Session[]
+  programs        Program[]
+  workouts        Workout[]
+  bodyMetrics     BodyMetric[]
+  passwordResets  PasswordResetToken[]
+  publishedShares CommunityProgram[]
+  ratings         ProgramRating[]
+  maxes           UserMax[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  // SHA-256 of the opaque session token; raw token only lives in the cookie.
+  tokenHash String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  userAgent String?
+
+  @@index([userId])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Program {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  description String   @default("")
+  // Canonical program definition (see docs/PROGRAM_FORMAT.md)
+  sourceYaml  String
+  // JSON: per-exercise progression state, e.g. {"squat":{"weight":135,"failures":0}}
+  state       String   @default("{}")
+  // Position in the schedule: index of the next day to run
+  nextDay     Int      @default(0)
+  isActive    Boolean  @default(false)
+  // Community program this was imported from, if any
+  sourceSlug  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  workouts Workout[]
+
+  @@index([userId])
+}
+
+model Workout {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  programId   String?
+  program     Program?  @relation(fields: [programId], references: [id], onDelete: SetNull)
+  programName String    @default("")
+  dayName     String
+  dayIndex    Int       @default(0)
+  startedAt   DateTime  @default(now())
+  completedAt DateTime?
+  notes       String    @default("")
+
+  sets SetLog[]
+
+  @@index([userId, startedAt])
+}
+
+model SetLog {
+  id           String  @id @default(cuid())
+  workoutId    String
+  workout      Workout @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+  exerciseId   String
+  exerciseName String
+  /** Order of the exercise block within the workout. */
+  blockIndex   Int     @default(0)
+  setIndex     Int
+  targetReps   Int
+  /** Upper bound for rep ranges; equals targetReps otherwise. */
+  targetMaxReps Int    @default(0)
+  isAmrap      Boolean @default(false)
+  isWarmup     Boolean @default(false)
+  targetWeight Float
+  // Actuals; null until the lifter logs the set
+  reps         Int?
+  weight       Float?
+  rpe          Float?
+  completed    Boolean @default(false)
+
+  @@index([workoutId])
+}
+
+model BodyMetric {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date       DateTime @default(now())
+  weight     Float?
+  bodyFatPct Float?
+  notes      String   @default("")
+
+  @@index([userId, date])
+}
+
+model CommunityProgram {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  description String   @default("")
+  author      String
+  sourceYaml  String
+  // Comma-separated, e.g. "beginner,strength,barbell"
+  tags        String   @default("")
+  isOfficial  Boolean  @default(false)
+  downloads   Int      @default(0)
+  // Set when published by a local user of this instance
+  publishedById String?
+  publishedBy   User?  @relation(fields: [publishedById], references: [id], onDelete: SetNull)
+  // Set when published remotely by a registered instance
+  instanceId  String?
+  instance    Instance? @relation(fields: [instanceId], references: [id], onDelete: SetNull)
+  ratings     ProgramRating[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// A lifter's own one-rep max for an exercise, entered by hand or saved
+// from the 1RM calculator. Reference values; independent of program state.
+model UserMax {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  value     Float
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  @@unique([userId, name])
+}
+
+model ProgramRating {
+  id        String   @id @default(cuid())
+  programId String
+  program   CommunityProgram @relation(fields: [programId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stars     Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([programId, userId])
+}
+
+// Instance-wide settings editable from the admin panel,
+// e.g. registration = "open" | "closed".
+model AppSetting {
+  key   String @id
+  value String
+}
+
+// Self-hosted Community Edition instances registered with this hub,
+// allowed to publish programs via the federation API.
+model Instance {
+  id         String   @id @default(cuid())
+  name       String
+  url        String
+  // SHA-256 of the instance API key
+  apiKeyHash String   @unique
+  approved   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  programs CommunityProgram[]
+}
