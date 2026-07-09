@@ -1,4 +1,4 @@
-import { getCurrentUser, listSessions, currentSessionId } from "@/lib/auth/session";
+﻿import { requireUserPage, listSessions, currentSessionId } from "@/lib/auth/session";
 import { revokeOtherSessions } from "@/lib/settings/actions";
 import { getEdition } from "@/lib/edition";
 import { formatDateTime } from "@/lib/format";
@@ -8,7 +8,7 @@ import { DeleteAccountForm, PasswordForm, ProfileForm } from "./forms";
 export const metadata = { title: "Settings" };
 
 export default async function SettingsPage() {
-  const user = (await getCurrentUser())!;
+  const user = await requireUserPage();
   const [sessions, currentId] = await Promise.all([
     listSessions(user.id),
     currentSessionId(),

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { db } from "@/lib/db";
-import { getCurrentUser } from "@/lib/auth/session";
+import { requireUserPage } from "@/lib/auth/session";
 import { parseProgram } from "@/lib/engine/program";
 import { activateProgram } from "@/lib/programs/actions";
 import { timeAgo } from "@/lib/format";
@@ -10,7 +10,7 @@ import { Badge, Button, ButtonLink, Card, EmptyState } from "@/components/ui";
 export const metadata = { title: "Programs" };
 
 export default async function ProgramsPage() {
-  const user = (await getCurrentUser())!;
+  const user = await requireUserPage();
   const programs = await db.program.findMany({
     where: { userId: user.id },
     orderBy: [{ isActive: "desc" }, { updatedAt: "desc" }],

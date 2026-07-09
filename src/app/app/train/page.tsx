@@ -1,7 +1,7 @@
-import { redirect } from "next/navigation";
+﻿import { redirect } from "next/navigation";
 import { Play, SkipForward } from "lucide-react";
 import { db } from "@/lib/db";
-import { getCurrentUser } from "@/lib/auth/session";
+import { requireUserPage } from "@/lib/auth/session";
 import { getWorkoutPlan, parseProgram } from "@/lib/engine/program";
 import type { ProgramState } from "@/lib/engine/types";
 import { skipNextDay } from "@/lib/programs/actions";
@@ -19,7 +19,7 @@ import {
 export const metadata = { title: "Train" };
 
 export default async function TrainPage() {
-  const user = (await getCurrentUser())!;
+  const user = await requireUserPage();
 
   const inProgress = await db.workout.findFirst({
     where: { userId: user.id, completedAt: null },

@@ -1,6 +1,6 @@
-import { notFound } from "next/navigation";
+﻿import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
-import { getCurrentUser } from "@/lib/auth/session";
+import { requireUserPage } from "@/lib/auth/session";
 import { getEdition, getEntitlements } from "@/lib/edition";
 import { PublishForm } from "./publish-form";
 import { FormError } from "@/components/ui";
@@ -13,7 +13,7 @@ export default async function PublishPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const user = (await getCurrentUser())!;
+  const user = await requireUserPage();
   const program = await db.program.findFirst({
     where: { id, userId: user.id },
   });

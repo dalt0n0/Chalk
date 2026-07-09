@@ -1,7 +1,7 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { ArrowRight, Dumbbell, Flame, Scale, Trophy } from "lucide-react";
 import { db } from "@/lib/db";
-import { getCurrentUser } from "@/lib/auth/session";
+import { requireUserPage } from "@/lib/auth/session";
 import { parseProgram, getWorkoutPlan } from "@/lib/engine/program";
 import type { ProgramState } from "@/lib/engine/types";
 import { formatDate, formatWeight, repTarget, timeAgo } from "@/lib/format";
@@ -10,7 +10,7 @@ import { Badge, ButtonLink, Card, CardTitle, EmptyState } from "@/components/ui"
 export const metadata = { title: "Dashboard" };
 
 export default async function DashboardPage() {
-  const user = (await getCurrentUser())!;
+  const user = await requireUserPage();
   const weekStart = new Date();
   weekStart.setHours(0, 0, 0, 0);
   weekStart.setDate(weekStart.getDate() - ((weekStart.getDay() + 6) % 7)); // Monday

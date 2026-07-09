@@ -1,12 +1,12 @@
-import Link from "next/link";
-import { getCurrentUser } from "@/lib/auth/session";
+﻿import Link from "next/link";
+import { requireUserPage } from "@/lib/auth/session";
 import { getEntitlements } from "@/lib/edition";
 import { ProgramEditor } from "@/components/editor/ProgramEditor";
 
 export const metadata = { title: "New program" };
 
 export default async function NewProgramPage() {
-  const user = (await getCurrentUser())!;
+  const user = await requireUserPage();
   const ent = getEntitlements(user);
 
   return (

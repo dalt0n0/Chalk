@@ -1,6 +1,6 @@
-import { notFound } from "next/navigation";
+﻿import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
-import { getCurrentUser } from "@/lib/auth/session";
+import { requireUserPage } from "@/lib/auth/session";
 import { deleteWorkout } from "@/lib/workouts/actions";
 import { formatDateTime, formatWeight, repTarget } from "@/lib/format";
 import { Badge, Card } from "@/components/ui";
@@ -14,7 +14,7 @@ export default async function WorkoutDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const user = (await getCurrentUser())!;
+  const user = await requireUserPage();
   const workout = await db.workout.findFirst({
     where: { id, userId: user.id },
     include: { sets: { orderBy: [{ blockIndex: "asc" }, { setIndex: "asc" }] } },

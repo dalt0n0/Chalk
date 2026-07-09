@@ -1,6 +1,6 @@
-import { Trash2 } from "lucide-react";
+﻿import { Trash2 } from "lucide-react";
 import { db } from "@/lib/db";
-import { getCurrentUser } from "@/lib/auth/session";
+import { requireUserPage } from "@/lib/auth/session";
 import { deleteBodyMetric } from "@/lib/metrics/actions";
 import { formatDate, formatWeight } from "@/lib/format";
 import { Card, CardTitle, EmptyState } from "@/components/ui";
@@ -10,7 +10,7 @@ import { LogMetricForm } from "./log-form";
 export const metadata = { title: "Body metrics" };
 
 export default async function MetricsPage() {
-  const user = (await getCurrentUser())!;
+  const user = await requireUserPage();
   const metrics = await db.bodyMetric.findMany({
     where: { userId: user.id },
     orderBy: { date: "desc" },

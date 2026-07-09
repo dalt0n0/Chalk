@@ -1,8 +1,8 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Pencil, Play, RotateCcw, Upload } from "lucide-react";
 import { db } from "@/lib/db";
-import { getCurrentUser } from "@/lib/auth/session";
+import { requireUserPage } from "@/lib/auth/session";
 import { getEntitlements } from "@/lib/edition";
 import {
   parseProgram,
@@ -36,7 +36,7 @@ export default async function ProgramDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const user = (await getCurrentUser())!;
+  const user = await requireUserPage();
   const ent = getEntitlements(user);
   const program = await db.program.findFirst({
     where: { id, userId: user.id },

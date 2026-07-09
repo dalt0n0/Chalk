@@ -1,6 +1,7 @@
 import "server-only";
 import { createHash, randomBytes } from "crypto";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { cache } from "react";
 import { db } from "@/lib/db";
 import type { User } from "@prisma/client";
@@ -86,6 +87,18 @@ export const getCurrentUser = cache(async (): Promise<User | null> => {
 export async function requireUser(): Promise<User> {
   const user = await getCurrentUser();
   if (!user) throw new Error("UNAUTHENTICATED");
+  return user;
+}
+
+/**
+ * Page-level auth guard. Layouts and pages render concurrently in the App
+ * Router, so a page must not rely on the layout's redirect: with no session
+ * it would dereference null and crash the render. Every authenticated page
+ * resolves its user through this.
+ */
+export async function requireUserPage(): Promise<User> {
+  const user = await getCurrentUser();
+  if (!user) redirect("/login");
   return user;
 }
 

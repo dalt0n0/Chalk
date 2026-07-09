@@ -1,10 +1,10 @@
-import { getCurrentUser } from "@/lib/auth/session";
+﻿import { requireUserPage } from "@/lib/auth/session";
 import { PlateCalculator } from "./calculator";
 
 export const metadata = { title: "Plate calculator" };
 
 export default async function PlatesPage() {
-  const user = (await getCurrentUser())!;
+  const user = await requireUserPage();
   return (
     <div className="space-y-6">
       <div>

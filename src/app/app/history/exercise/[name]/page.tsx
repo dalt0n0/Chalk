@@ -1,7 +1,7 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
-import { getCurrentUser } from "@/lib/auth/session";
+import { requireUserPage } from "@/lib/auth/session";
 import { getEntitlements } from "@/lib/edition";
 import { epley1RM } from "@/lib/engine/program";
 import { formatDate, formatWeight } from "@/lib/format";
@@ -17,7 +17,7 @@ export default async function ExerciseHistoryPage({
 }) {
   const { name: raw } = await params;
   const name = decodeURIComponent(raw);
-  const user = (await getCurrentUser())!;
+  const user = await requireUserPage();
   const ent = getEntitlements(user);
 
   const cutoff =

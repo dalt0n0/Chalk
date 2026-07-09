@@ -1,6 +1,6 @@
-import { notFound, redirect } from "next/navigation";
+﻿import { notFound, redirect } from "next/navigation";
 import { db } from "@/lib/db";
-import { getCurrentUser } from "@/lib/auth/session";
+import { requireUserPage } from "@/lib/auth/session";
 import { WorkoutPlayer, type PlayerEntry } from "./player";
 
 export const metadata = { title: "Workout" };
@@ -11,7 +11,7 @@ export default async function WorkoutPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const user = (await getCurrentUser())!;
+  const user = await requireUserPage();
   const workout = await db.workout.findFirst({
     where: { id, userId: user.id },
     include: { sets: { orderBy: [{ blockIndex: "asc" }, { setIndex: "asc" }] } },

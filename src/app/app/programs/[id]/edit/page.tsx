@@ -1,6 +1,6 @@
-import { notFound } from "next/navigation";
+﻿import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
-import { getCurrentUser } from "@/lib/auth/session";
+import { requireUserPage } from "@/lib/auth/session";
 import { getEntitlements } from "@/lib/edition";
 import { ProgramEditor } from "@/components/editor/ProgramEditor";
 
@@ -12,7 +12,7 @@ export default async function EditProgramPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const user = (await getCurrentUser())!;
+  const user = await requireUserPage();
   const program = await db.program.findFirst({
     where: { id, userId: user.id },
   });

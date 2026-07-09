@@ -1,6 +1,6 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { db } from "@/lib/db";
-import { getCurrentUser } from "@/lib/auth/session";
+import { requireUserPage } from "@/lib/auth/session";
 import { getEntitlements } from "@/lib/edition";
 import { epley1RM, parseProgram } from "@/lib/engine/program";
 import type { ProgramState } from "@/lib/engine/types";
@@ -34,7 +34,7 @@ type EstimatedRecord = {
 };
 
 export default async function RecordsPage() {
-  const user = (await getCurrentUser())!;
+  const user = await requireUserPage();
   const ent = getEntitlements(user);
 
   const userMaxes = await db.userMax.findMany({
