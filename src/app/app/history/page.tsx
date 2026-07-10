@@ -193,8 +193,8 @@ async function ExerciseList({
     );
 
   return (
-    <Card className="p-0">
-      <table className="w-full text-sm">
+    <Card className="overflow-x-auto p-0">
+      <table className="w-full min-w-[36rem] text-sm">
         <thead>
           <tr className="text-left text-xs uppercase tracking-wide text-muted">
             <th className="px-4 py-3 font-medium">Exercise</th>

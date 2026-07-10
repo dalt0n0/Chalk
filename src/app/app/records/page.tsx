@@ -247,7 +247,8 @@ export default async function RecordsPage() {
             </EmptyState>
           </div>
         ) : (
-          <table className="mt-4 w-full text-sm">
+          <div className="overflow-x-auto">
+          <table className="mt-4 w-full min-w-[30rem] text-sm">
             <thead>
               <tr className="text-left text-xs uppercase tracking-wide text-muted">
                 <th className="pb-2 font-medium">Exercise</th>
@@ -273,6 +274,7 @@ export default async function RecordsPage() {
               ))}
             </tbody>
           </table>
+          </div>
         )}
       </Card>
     </div>

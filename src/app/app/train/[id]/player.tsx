@@ -254,17 +254,17 @@ export function WorkoutPlayer({
                   }`}
                 >
                   <span
-                    className={`w-8 shrink-0 text-center font-mono text-xs ${set.isWarmup ? "text-muted/70" : "text-muted"}`}
+                    className={`w-5 shrink-0 text-center font-mono text-xs sm:w-8 ${set.isWarmup ? "text-muted/70" : "text-muted"}`}
                   >
                     {set.isWarmup ? "W" : workingIndex}
                   </span>
                   <span
-                    className={`w-24 shrink-0 font-mono text-xs ${set.isWarmup ? "text-muted/70" : "text-muted"}`}
+                    className={`w-16 shrink-0 font-mono text-xs sm:w-24 ${set.isWarmup ? "text-muted/70" : "text-muted"}`}
                   >
                     {repTarget(set.targetReps, set.targetMaxReps, set.isAmrap)} ×{" "}
                     {set.targetWeight > 0 ? set.targetWeight : "BW"}
                     {set.isWarmup && (
-                      <span className="ml-1.5 rounded bg-surface-3 px-1 py-0.5 text-[10px] uppercase tracking-wide">
+                      <span className="ml-1.5 hidden rounded bg-surface-3 px-1 py-0.5 text-[10px] uppercase tracking-wide sm:inline">
                         warmup
                       </span>
                     )}
@@ -275,7 +275,7 @@ export function WorkoutPlayer({
                       <button
                         type="button"
                         aria-label="One rep less"
-                        className="grid h-7 w-7 place-items-center rounded-md bg-surface-3 text-muted hover:text-text"
+                        className="hidden h-7 w-7 place-items-center rounded-md bg-surface-3 text-muted hover:text-text sm:grid"
                         onClick={() =>
                           persist(set, {
                             reps: Math.max(0, (set.reps ?? set.targetReps) - 1),
@@ -298,7 +298,7 @@ export function WorkoutPlayer({
                       <button
                         type="button"
                         aria-label="One rep more"
-                        className="grid h-7 w-7 place-items-center rounded-md bg-surface-3 text-muted hover:text-text"
+                        className="hidden h-7 w-7 place-items-center rounded-md bg-surface-3 text-muted hover:text-text sm:grid"
                         onClick={() =>
                           persist(set, { reps: (set.reps ?? set.targetReps) + 1 })
                         }

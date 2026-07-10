@@ -4,7 +4,7 @@ import { LogOut } from "lucide-react";
 import { getCurrentUser } from "@/lib/auth/session";
 import { logout } from "@/lib/auth/actions";
 import { Badge, Logo } from "@/components/ui";
-import { AppNav } from "./nav";
+import { AppNav, MobileNav } from "./nav";
 
 export default async function AppLayout({
   children,
@@ -16,7 +16,7 @@ export default async function AppLayout({
 
   return (
     <div className="flex min-h-screen">
-      <aside className="sticky top-0 flex h-screen w-16 shrink-0 flex-col border-r border-border bg-surface/60 p-3 lg:w-60">
+      <aside className="sticky top-0 hidden h-screen w-16 shrink-0 flex-col border-r border-border bg-surface/60 p-3 sm:flex lg:w-60">
         <Link href="/app" className="mb-6 flex items-center px-1 pt-1">
           <span className="hidden lg:block">
             <Logo />
@@ -48,10 +48,11 @@ export default async function AppLayout({
         </div>
       </aside>
       <main className="min-w-0 flex-1">
-        <div className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-8">
+        <div className="mx-auto w-full max-w-5xl px-4 py-8 pb-24 sm:px-8 sm:pb-8">
           {children}
         </div>
       </main>
+      <MobileNav isAdmin={user.role === "admin"} />
     </div>
   );
 }

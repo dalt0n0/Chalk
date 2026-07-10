@@ -1,6 +1,12 @@
-﻿/**
+/**
  * Official premade programs seeded into the community repository.
  * Each must parse cleanly with the Chalk engine (verified by tests/seed).
+ *
+ * All main lifts are driven by 1RM math: working weights are percentages of
+ * an rm1 state variable, progression scripts raise rm1, and the engine also
+ * bumps rm1 automatically whenever a logged set implies a higher max.
+ * Small isolation accessories keep plain working weights where a 1RM is not
+ * meaningful.
  */
 
 export type Preset = {
@@ -17,115 +23,195 @@ export const PRESETS: Preset[] = [
     slug: "starting-strength",
     name: "Starting Strength",
     author: "Mark Rippetoe (adaptation)",
-    tags: "beginner,strength,barbell,3-day",
+    tags: "beginner,strength,barbell,3-day,1rm",
     description:
-      "The classic novice linear progression: squat every session, alternating press/bench and deadlift/row, adding weight every workout.",
+      "The classic novice linear progression: squat every session, alternating press/bench and deadlift/row. Weights come from each lift's 1RM; every successful session raises it.",
     yaml: `name: Starting Strength
-description: Novice linear progression. Squat every session, alternate Workout A and B, add weight every time. Deload 10% after three failed sessions on a lift.
+description: Novice linear progression. Squat every session, alternate Workout A and B. Working sets are 85% of each lift's rm1; set your real 1RMs before starting (1RMs page). Success raises rm1 (about +5 on the bar, +10 for deadlift); three failed sessions deload it 10%.
 author: Mark Rippetoe (adaptation)
 units: lb
 rounding: 5
 exercises:
   squat:
     name: Barbell Squat
-    state: { weight: 95 }
-    progress: { type: linear, increment: 5, deloadPct: 10, failuresBeforeDeload: 3 }
+    state: { rm1: 110, failures: 0 }
+    progress:
+      type: script
+      onComplete: rm1 += 6
+      onFail: |
+        failures += 1
+        if (failures >= 3) {
+          rm1 = roundTo(rm1 * 0.9, 5)
+          failures = 0
+        }
   press:
     name: Overhead Press
-    state: { weight: 65 }
-    progress: { type: linear, increment: 5, deloadPct: 10, failuresBeforeDeload: 3 }
+    state: { rm1: 75, failures: 0 }
+    progress:
+      type: script
+      onComplete: rm1 += 6
+      onFail: |
+        failures += 1
+        if (failures >= 3) {
+          rm1 = roundTo(rm1 * 0.9, 5)
+          failures = 0
+        }
   bench:
     name: Bench Press
-    state: { weight: 95 }
-    progress: { type: linear, increment: 5, deloadPct: 10, failuresBeforeDeload: 3 }
+    state: { rm1: 110, failures: 0 }
+    progress:
+      type: script
+      onComplete: rm1 += 6
+      onFail: |
+        failures += 1
+        if (failures >= 3) {
+          rm1 = roundTo(rm1 * 0.9, 5)
+          failures = 0
+        }
   deadlift:
     name: Deadlift
-    state: { weight: 135 }
-    progress: { type: linear, increment: 10, deloadPct: 10, failuresBeforeDeload: 3 }
+    state: { rm1: 160, failures: 0 }
+    progress:
+      type: script
+      onComplete: rm1 += 12
+      onFail: |
+        failures += 1
+        if (failures >= 3) {
+          rm1 = roundTo(rm1 * 0.9, 5)
+          failures = 0
+        }
   row:
     name: Barbell Row
-    state: { weight: 95 }
-    progress: { type: linear, increment: 5, deloadPct: 10, failuresBeforeDeload: 3 }
+    state: { rm1: 110, failures: 0 }
+    progress:
+      type: script
+      onComplete: rm1 += 6
+      onFail: |
+        failures += 1
+        if (failures >= 3) {
+          rm1 = roundTo(rm1 * 0.9, 5)
+          failures = 0
+        }
 days:
   - name: Workout A
     blocks:
       - exercise: squat
-        sets: 3x5 @ weight
+        sets: 3x5 @ rm1*0.85
       - exercise: press
-        sets: 3x5 @ weight
+        sets: 3x5 @ rm1*0.85
       - exercise: deadlift
-        sets: 1x5 @ weight
+        sets: 1x5 @ rm1*0.85
   - name: Workout B
     blocks:
       - exercise: squat
-        sets: 3x5 @ weight
+        sets: 3x5 @ rm1*0.85
       - exercise: bench
-        sets: 3x5 @ weight
+        sets: 3x5 @ rm1*0.85
       - exercise: row
-        sets: 3x5 @ weight
+        sets: 3x5 @ rm1*0.85
 `,
   },
   {
     slug: "stronglifts-5x5",
     name: "StrongLifts 5×5",
     author: "Mehdi (adaptation)",
-    tags: "beginner,strength,barbell,3-day",
+    tags: "beginner,strength,barbell,3-day,1rm",
     description:
-      "Five sets of five on the big barbell lifts, alternating two workouts. Add weight every session; automatic 10% deload after three failures.",
+      "Five sets of five on the big barbell lifts, alternating two workouts. Weights are 1RM percentages; each successful session raises the lift's rm1, and three failures deload it.",
     yaml: `name: StrongLifts 5x5
-description: Alternate Workout A and B three times a week. 5x5 on everything except deadlift (1x5). +5 lb per session (+10 deadlift), 10% deload after 3 failures.
+description: Alternate Workout A and B three times a week. 5x5 at 82.5% of each lift's rm1 (deadlift 1x5 at 85%). Set your real 1RMs before starting (1RMs page). Success raises rm1 (about +5 on the bar, +10 deadlift); three failures deload rm1 10%.
 author: Mehdi (adaptation)
 units: lb
 rounding: 5
 exercises:
   squat:
     name: Barbell Squat
-    state: { weight: 95 }
-    progress: { type: linear, increment: 5, deloadPct: 10, failuresBeforeDeload: 3 }
+    state: { rm1: 115, failures: 0 }
+    progress:
+      type: script
+      onComplete: rm1 += 6
+      onFail: |
+        failures += 1
+        if (failures >= 3) {
+          rm1 = roundTo(rm1 * 0.9, 5)
+          failures = 0
+        }
   bench:
     name: Bench Press
-    state: { weight: 95 }
-    progress: { type: linear, increment: 5, deloadPct: 10, failuresBeforeDeload: 3 }
+    state: { rm1: 115, failures: 0 }
+    progress:
+      type: script
+      onComplete: rm1 += 6
+      onFail: |
+        failures += 1
+        if (failures >= 3) {
+          rm1 = roundTo(rm1 * 0.9, 5)
+          failures = 0
+        }
   row:
     name: Barbell Row
-    state: { weight: 95 }
-    progress: { type: linear, increment: 5, deloadPct: 10, failuresBeforeDeload: 3 }
+    state: { rm1: 115, failures: 0 }
+    progress:
+      type: script
+      onComplete: rm1 += 6
+      onFail: |
+        failures += 1
+        if (failures >= 3) {
+          rm1 = roundTo(rm1 * 0.9, 5)
+          failures = 0
+        }
   press:
     name: Overhead Press
-    state: { weight: 65 }
-    progress: { type: linear, increment: 5, deloadPct: 10, failuresBeforeDeload: 3 }
+    state: { rm1: 80, failures: 0 }
+    progress:
+      type: script
+      onComplete: rm1 += 6
+      onFail: |
+        failures += 1
+        if (failures >= 3) {
+          rm1 = roundTo(rm1 * 0.9, 5)
+          failures = 0
+        }
   deadlift:
     name: Deadlift
-    state: { weight: 135 }
-    progress: { type: linear, increment: 10, deloadPct: 10, failuresBeforeDeload: 3 }
+    state: { rm1: 160, failures: 0 }
+    progress:
+      type: script
+      onComplete: rm1 += 12
+      onFail: |
+        failures += 1
+        if (failures >= 3) {
+          rm1 = roundTo(rm1 * 0.9, 5)
+          failures = 0
+        }
 days:
   - name: Workout A
     blocks:
       - exercise: squat
-        sets: 5x5 @ weight
+        sets: 5x5 @ rm1*0.825
       - exercise: bench
-        sets: 5x5 @ weight
+        sets: 5x5 @ rm1*0.825
       - exercise: row
-        sets: 5x5 @ weight
+        sets: 5x5 @ rm1*0.825
   - name: Workout B
     blocks:
       - exercise: squat
-        sets: 5x5 @ weight
+        sets: 5x5 @ rm1*0.825
       - exercise: press
-        sets: 5x5 @ weight
+        sets: 5x5 @ rm1*0.825
       - exercise: deadlift
-        sets: 1x5 @ weight
+        sets: 1x5 @ rm1*0.85
 `,
   },
   {
     slug: "531-boring-but-big",
     name: "5/3/1 Boring But Big",
     author: "Jim Wendler (adaptation)",
-    tags: "intermediate,strength,barbell,4-day,percentage",
+    tags: "intermediate,strength,barbell,4-day,percentage,1rm",
     description:
-      "Wendler's 5/3/1 with Boring But Big assistance: four days per week, three waves plus a deload, driven by training-max percentages. AMRAP top sets; the training max bumps automatically after each cycle.",
+      "Wendler's 5/3/1 with Boring But Big assistance: four days per week, three waves plus a deload, all computed from each lift's 1RM. AMRAP top sets can raise your rm1 mid-cycle; the base bump lands after each deload week.",
     yaml: `name: 5/3/1 Boring But Big
-description: Four-day 5/3/1 with 5x10 BBB volume work. Weights are percentages of each lift's training max (tm, roughly 90% of 1RM; edit the state values before starting). The TM increases after the week-4 deload (+5 upper, +10 lower).
+description: "Four-day 5/3/1 with 5x10 BBB volume work. Every weight is a percentage of the lift's rm1 (the classic training max is built in as 90% of rm1). Set your real 1RMs before starting (1RMs page). rm1 rises after the week-4 deload (+5 upper, +10 lower), and big AMRAP sets raise it immediately."
 author: Jim Wendler (adaptation)
 units: lb
 rounding: 5
@@ -133,32 +219,32 @@ weeks: 4
 exercises:
   press:
     name: Overhead Press
-    state: { tm: 100 }
+    state: { rm1: 110 }
     progress:
       type: script
-      onComplete: if (week == 4) { tm += 5 }
-      onFail: if (week == 4) { tm += 5 }
+      onComplete: if (week == 4) { rm1 += 5 }
+      onFail: if (week == 4) { rm1 += 5 }
   deadlift:
     name: Deadlift
-    state: { tm: 300 }
+    state: { rm1: 335 }
     progress:
       type: script
-      onComplete: if (week == 4) { tm += 10 }
-      onFail: if (week == 4) { tm += 10 }
+      onComplete: if (week == 4) { rm1 += 10 }
+      onFail: if (week == 4) { rm1 += 10 }
   bench:
     name: Bench Press
-    state: { tm: 200 }
+    state: { rm1: 225 }
     progress:
       type: script
-      onComplete: if (week == 4) { tm += 5 }
-      onFail: if (week == 4) { tm += 5 }
+      onComplete: if (week == 4) { rm1 += 5 }
+      onFail: if (week == 4) { rm1 += 5 }
   squat:
     name: Barbell Squat
-    state: { tm: 250 }
+    state: { rm1: 280 }
     progress:
       type: script
-      onComplete: if (week == 4) { tm += 10 }
-      onFail: if (week == 4) { tm += 10 }
+      onComplete: if (week == 4) { rm1 += 10 }
+      onFail: if (week == 4) { rm1 += 10 }
   lat_pulldown:
     name: Lat Pulldown
     state: { weight: 90 }
@@ -172,12 +258,12 @@ days:
     blocks:
       - exercise: press
         sets:
-          week1: "5 @ tm*0.65, 5 @ tm*0.75, 5+ @ tm*0.85"
-          week2: "3 @ tm*0.70, 3 @ tm*0.80, 3+ @ tm*0.90"
-          week3: "5 @ tm*0.75, 3 @ tm*0.85, 1+ @ tm*0.95"
-          week4: "5 @ tm*0.40, 5 @ tm*0.50, 5 @ tm*0.60"
+          week1: "5 @ rm1*0.9*0.65, 5 @ rm1*0.9*0.75, 5+ @ rm1*0.9*0.85"
+          week2: "3 @ rm1*0.9*0.70, 3 @ rm1*0.9*0.80, 3+ @ rm1*0.9*0.90"
+          week3: "5 @ rm1*0.9*0.75, 3 @ rm1*0.9*0.85, 1+ @ rm1*0.9*0.95"
+          week4: "5 @ rm1*0.9*0.40, 5 @ rm1*0.9*0.50, 5 @ rm1*0.9*0.60"
       - exercise: press
-        sets: 5x10 @ tm*0.5
+        sets: 5x10 @ rm1*0.45
         notes: Boring But Big volume work
       - exercise: lat_pulldown
         sets: 5x10 @ weight
@@ -185,12 +271,12 @@ days:
     blocks:
       - exercise: deadlift
         sets:
-          week1: "5 @ tm*0.65, 5 @ tm*0.75, 5+ @ tm*0.85"
-          week2: "3 @ tm*0.70, 3 @ tm*0.80, 3+ @ tm*0.90"
-          week3: "5 @ tm*0.75, 3 @ tm*0.85, 1+ @ tm*0.95"
-          week4: "5 @ tm*0.40, 5 @ tm*0.50, 5 @ tm*0.60"
+          week1: "5 @ rm1*0.9*0.65, 5 @ rm1*0.9*0.75, 5+ @ rm1*0.9*0.85"
+          week2: "3 @ rm1*0.9*0.70, 3 @ rm1*0.9*0.80, 3+ @ rm1*0.9*0.90"
+          week3: "5 @ rm1*0.9*0.75, 3 @ rm1*0.9*0.85, 1+ @ rm1*0.9*0.95"
+          week4: "5 @ rm1*0.9*0.40, 5 @ rm1*0.9*0.50, 5 @ rm1*0.9*0.60"
       - exercise: deadlift
-        sets: 5x10 @ tm*0.5
+        sets: 5x10 @ rm1*0.45
         notes: Boring But Big volume work
       - exercise: hanging_leg_raise
         sets: 5x10
@@ -198,12 +284,12 @@ days:
     blocks:
       - exercise: bench
         sets:
-          week1: "5 @ tm*0.65, 5 @ tm*0.75, 5+ @ tm*0.85"
-          week2: "3 @ tm*0.70, 3 @ tm*0.80, 3+ @ tm*0.90"
-          week3: "5 @ tm*0.75, 3 @ tm*0.85, 1+ @ tm*0.95"
-          week4: "5 @ tm*0.40, 5 @ tm*0.50, 5 @ tm*0.60"
+          week1: "5 @ rm1*0.9*0.65, 5 @ rm1*0.9*0.75, 5+ @ rm1*0.9*0.85"
+          week2: "3 @ rm1*0.9*0.70, 3 @ rm1*0.9*0.80, 3+ @ rm1*0.9*0.90"
+          week3: "5 @ rm1*0.9*0.75, 3 @ rm1*0.9*0.85, 1+ @ rm1*0.9*0.95"
+          week4: "5 @ rm1*0.9*0.40, 5 @ rm1*0.9*0.50, 5 @ rm1*0.9*0.60"
       - exercise: bench
-        sets: 5x10 @ tm*0.5
+        sets: 5x10 @ rm1*0.45
         notes: Boring But Big volume work
       - exercise: lat_pulldown
         sets: 5x10 @ weight
@@ -211,12 +297,12 @@ days:
     blocks:
       - exercise: squat
         sets:
-          week1: "5 @ tm*0.65, 5 @ tm*0.75, 5+ @ tm*0.85"
-          week2: "3 @ tm*0.70, 3 @ tm*0.80, 3+ @ tm*0.90"
-          week3: "5 @ tm*0.75, 3 @ tm*0.85, 1+ @ tm*0.95"
-          week4: "5 @ tm*0.40, 5 @ tm*0.50, 5 @ tm*0.60"
+          week1: "5 @ rm1*0.9*0.65, 5 @ rm1*0.9*0.75, 5+ @ rm1*0.9*0.85"
+          week2: "3 @ rm1*0.9*0.70, 3 @ rm1*0.9*0.80, 3+ @ rm1*0.9*0.90"
+          week3: "5 @ rm1*0.9*0.75, 3 @ rm1*0.9*0.85, 1+ @ rm1*0.9*0.95"
+          week4: "5 @ rm1*0.9*0.40, 5 @ rm1*0.9*0.50, 5 @ rm1*0.9*0.60"
       - exercise: squat
-        sets: 5x10 @ tm*0.5
+        sets: 5x10 @ rm1*0.45
         notes: Boring But Big volume work
       - exercise: hanging_leg_raise
         sets: 5x10
@@ -226,47 +312,87 @@ days:
     slug: "gzclp",
     name: "GZCLP",
     author: "Cody Lefever (adaptation)",
-    tags: "beginner,intermediate,strength,barbell,4-day",
+    tags: "beginner,intermediate,strength,barbell,4-day,1rm",
     description:
-      "Cody Lefever's linear program built on the GZCL pyramid: heavy T1 with an AMRAP top set, volume T2, and high-rep T3 accessories.",
+      "Cody Lefever's linear program built on the GZCL pyramid: heavy T1 with an AMRAP top set, volume T2, and high-rep T3 accessories. T1 and T2 weights come from each lift's 1RM.",
     yaml: `name: GZCLP
-description: "Four-day GZCL linear progression. T1: 5 sets of 3 with an AMRAP last set (+5/+10 per session). T2: 3x10 volume (+5). T3: 3x15 with an AMRAP last set; add weight when the AMRAP hits 25. This adaptation deloads a lift 10% after two failed sessions."
+description: "Four-day GZCL linear progression. T1: 5 sets of 3 at 85% of rm1 with an AMRAP last set. T2: 3x10 at 65% of its own rm1. T3: 3x15 with an AMRAP last set; add weight when the AMRAP hits 25. Set your real 1RMs before starting (1RMs page). Success raises rm1; two failed T1 sessions deload it 10%."
 author: Cody Lefever (adaptation)
 units: lb
 rounding: 5
 exercises:
   squat:
     name: Barbell Squat (T1)
-    state: { weight: 135 }
-    progress: { type: linear, increment: 10, deloadPct: 10, failuresBeforeDeload: 2 }
+    state: { rm1: 160, failures: 0 }
+    progress:
+      type: script
+      onComplete: rm1 += 12
+      onFail: |
+        failures += 1
+        if (failures >= 2) {
+          rm1 = roundTo(rm1 * 0.9, 5)
+          failures = 0
+        }
   bench:
     name: Bench Press (T1)
-    state: { weight: 115 }
-    progress: { type: linear, increment: 5, deloadPct: 10, failuresBeforeDeload: 2 }
+    state: { rm1: 135, failures: 0 }
+    progress:
+      type: script
+      onComplete: rm1 += 6
+      onFail: |
+        failures += 1
+        if (failures >= 2) {
+          rm1 = roundTo(rm1 * 0.9, 5)
+          failures = 0
+        }
   ohp:
     name: Overhead Press (T1)
-    state: { weight: 75 }
-    progress: { type: linear, increment: 5, deloadPct: 10, failuresBeforeDeload: 2 }
+    state: { rm1: 90, failures: 0 }
+    progress:
+      type: script
+      onComplete: rm1 += 6
+      onFail: |
+        failures += 1
+        if (failures >= 2) {
+          rm1 = roundTo(rm1 * 0.9, 5)
+          failures = 0
+        }
   deadlift:
     name: Deadlift (T1)
-    state: { weight: 185 }
-    progress: { type: linear, increment: 10, deloadPct: 10, failuresBeforeDeload: 2 }
+    state: { rm1: 220, failures: 0 }
+    progress:
+      type: script
+      onComplete: rm1 += 12
+      onFail: |
+        failures += 1
+        if (failures >= 2) {
+          rm1 = roundTo(rm1 * 0.9, 5)
+          failures = 0
+        }
   bench_t2:
     name: Bench Press (T2)
-    state: { weight: 85 }
-    progress: { type: linear, increment: 5 }
+    state: { rm1: 130 }
+    progress:
+      type: script
+      onComplete: rm1 += 8
   squat_t2:
     name: Barbell Squat (T2)
-    state: { weight: 95 }
-    progress: { type: linear, increment: 5 }
+    state: { rm1: 145 }
+    progress:
+      type: script
+      onComplete: rm1 += 8
   ohp_t2:
     name: Overhead Press (T2)
-    state: { weight: 55 }
-    progress: { type: linear, increment: 5 }
+    state: { rm1: 85 }
+    progress:
+      type: script
+      onComplete: rm1 += 8
   deadlift_t2:
     name: Deadlift (T2)
-    state: { weight: 135 }
-    progress: { type: linear, increment: 5 }
+    state: { rm1: 210 }
+    progress:
+      type: script
+      onComplete: rm1 += 8
   lat_pulldown:
     name: Lat Pulldown (T3)
     state: { weight: 70 }
@@ -283,33 +409,33 @@ days:
   - name: "Day 1: Squat focus"
     blocks:
       - exercise: squat
-        sets: "4x3 @ weight, 3+ @ weight"
+        sets: "4x3 @ rm1*0.85, 3+ @ rm1*0.85"
       - exercise: bench_t2
-        sets: 3x10 @ weight
+        sets: 3x10 @ rm1*0.65
       - exercise: lat_pulldown
         sets: "2x15 @ weight, 15+ @ weight"
   - name: "Day 2: OHP focus"
     blocks:
       - exercise: ohp
-        sets: "4x3 @ weight, 3+ @ weight"
+        sets: "4x3 @ rm1*0.85, 3+ @ rm1*0.85"
       - exercise: deadlift_t2
-        sets: 3x10 @ weight
+        sets: 3x10 @ rm1*0.65
       - exercise: row_t3
         sets: "2x15 @ weight, 15+ @ weight"
   - name: "Day 3: Bench focus"
     blocks:
       - exercise: bench
-        sets: "4x3 @ weight, 3+ @ weight"
+        sets: "4x3 @ rm1*0.85, 3+ @ rm1*0.85"
       - exercise: squat_t2
-        sets: 3x10 @ weight
+        sets: 3x10 @ rm1*0.65
       - exercise: lat_pulldown
         sets: "2x15 @ weight, 15+ @ weight"
   - name: "Day 4: Deadlift focus"
     blocks:
       - exercise: deadlift
-        sets: "4x3 @ weight, 3+ @ weight"
+        sets: "4x3 @ rm1*0.85, 3+ @ rm1*0.85"
       - exercise: ohp_t2
-        sets: 3x10 @ weight
+        sets: 3x10 @ rm1*0.65
       - exercise: row_t3
         sets: "2x15 @ weight, 15+ @ weight"
 `,
@@ -318,35 +444,75 @@ days:
     slug: "reddit-ppl",
     name: "Push Pull Legs (Reddit PPL)",
     author: "Metallicadpa (adaptation)",
-    tags: "beginner,hypertrophy,strength,6-day",
+    tags: "beginner,hypertrophy,strength,6-day,1rm",
     description:
-      "The popular 6-day linear-progression Push/Pull/Legs routine: 5x5 main lifts with AMRAP finishers and double-progression accessories in the 8-12 rep range.",
+      "The popular 6-day linear-progression Push/Pull/Legs routine. Main barbell lifts run off each lift's 1RM with AMRAP finishers that can raise it; accessories use double progression in the 8-12 rep range.",
     yaml: `name: Push Pull Legs (Reddit PPL)
-description: Six days a week, alternating Push/Pull/Legs. Main barbell lifts run 4x5 plus an AMRAP set with linear progression; accessories use double progression in the 8-12 rep range.
+description: Six days a week, alternating Push/Pull/Legs. Main lifts are 4x5 plus an AMRAP set at 85% of rm1 (secondary slots at 60-65%); set your real 1RMs before starting (1RMs page). Success raises rm1, three failures deload it 10%, and big AMRAP sets raise it immediately. Accessories use double progression in the 8-12 range.
 author: Metallicadpa (adaptation)
 units: lb
 rounding: 5
 exercises:
   bench:
     name: Bench Press
-    state: { weight: 95 }
-    progress: { type: linear, increment: 5, deloadPct: 10, failuresBeforeDeload: 3 }
+    state: { rm1: 110, failures: 0 }
+    progress:
+      type: script
+      onComplete: rm1 += 6
+      onFail: |
+        failures += 1
+        if (failures >= 3) {
+          rm1 = roundTo(rm1 * 0.9, 5)
+          failures = 0
+        }
   ohp:
     name: Overhead Press
-    state: { weight: 65 }
-    progress: { type: linear, increment: 5, deloadPct: 10, failuresBeforeDeload: 3 }
+    state: { rm1: 75, failures: 0 }
+    progress:
+      type: script
+      onComplete: rm1 += 6
+      onFail: |
+        failures += 1
+        if (failures >= 3) {
+          rm1 = roundTo(rm1 * 0.9, 5)
+          failures = 0
+        }
   squat:
     name: Barbell Squat
-    state: { weight: 115 }
-    progress: { type: linear, increment: 5, deloadPct: 10, failuresBeforeDeload: 3 }
+    state: { rm1: 135, failures: 0 }
+    progress:
+      type: script
+      onComplete: rm1 += 6
+      onFail: |
+        failures += 1
+        if (failures >= 3) {
+          rm1 = roundTo(rm1 * 0.9, 5)
+          failures = 0
+        }
   deadlift:
     name: Deadlift
-    state: { weight: 155 }
-    progress: { type: linear, increment: 10, deloadPct: 10, failuresBeforeDeload: 3 }
+    state: { rm1: 185, failures: 0 }
+    progress:
+      type: script
+      onComplete: rm1 += 12
+      onFail: |
+        failures += 1
+        if (failures >= 3) {
+          rm1 = roundTo(rm1 * 0.9, 5)
+          failures = 0
+        }
   row:
     name: Barbell Row
-    state: { weight: 95 }
-    progress: { type: linear, increment: 5, deloadPct: 10, failuresBeforeDeload: 3 }
+    state: { rm1: 110, failures: 0 }
+    progress:
+      type: script
+      onComplete: rm1 += 6
+      onFail: |
+        failures += 1
+        if (failures >= 3) {
+          rm1 = roundTo(rm1 * 0.9, 5)
+          failures = 0
+        }
   incline_db:
     name: Incline Dumbbell Press
     state: { weight: 35 }
@@ -387,9 +553,9 @@ days:
   - name: Push A
     blocks:
       - exercise: bench
-        sets: "4x5 @ weight, 5+ @ weight"
+        sets: "4x5 @ rm1*0.85, 5+ @ rm1*0.85"
       - exercise: ohp
-        sets: 3x8-12 @ weight*0.7
+        sets: 3x8-12 @ rm1*0.6
       - exercise: incline_db
         sets: 3x8-12 @ weight
       - exercise: triceps_pushdown
@@ -399,11 +565,11 @@ days:
   - name: Pull A
     blocks:
       - exercise: deadlift
-        sets: "1x5+ @ weight"
+        sets: "1x5+ @ rm1*0.85"
       - exercise: pullups
         sets: 3x8-12
       - exercise: row
-        sets: 3x8-12 @ weight*0.8
+        sets: 3x8-12 @ rm1*0.65
       - exercise: face_pull
         sets: 3x8-12 @ weight
       - exercise: curl
@@ -411,7 +577,7 @@ days:
   - name: Legs A
     blocks:
       - exercise: squat
-        sets: "4x5 @ weight, 5+ @ weight"
+        sets: "4x5 @ rm1*0.85, 5+ @ rm1*0.85"
       - exercise: leg_press
         sets: 3x8-12 @ weight
       - exercise: leg_curl
@@ -421,9 +587,9 @@ days:
   - name: Push B
     blocks:
       - exercise: ohp
-        sets: "4x5 @ weight, 5+ @ weight"
+        sets: "4x5 @ rm1*0.85, 5+ @ rm1*0.85"
       - exercise: bench
-        sets: 3x8-12 @ weight*0.7
+        sets: 3x8-12 @ rm1*0.6
       - exercise: incline_db
         sets: 3x8-12 @ weight
       - exercise: triceps_pushdown
@@ -433,7 +599,7 @@ days:
   - name: Pull B
     blocks:
       - exercise: row
-        sets: "4x5 @ weight, 5+ @ weight"
+        sets: "4x5 @ rm1*0.85, 5+ @ rm1*0.85"
       - exercise: pullups
         sets: 3x8-12
       - exercise: face_pull
@@ -443,13 +609,13 @@ days:
   - name: Legs B
     blocks:
       - exercise: squat
-        sets: 3x8-12 @ weight*0.8
+        sets: 3x8-12 @ rm1*0.65
       - exercise: leg_press
         sets: 3x8-12 @ weight
       - exercise: leg_curl
         sets: 3x8-12 @ weight
       - exercise: calf_raise
         sets: 3x8-12 @ weight
-`,
+  `,
   },
 ];

@@ -176,7 +176,8 @@ export default async function ExerciseHistoryPage({
 
       <Card>
         <CardTitle>Sessions</CardTitle>
-        <table className="mt-4 w-full text-sm">
+        <div className="overflow-x-auto">
+        <table className="mt-4 w-full min-w-[36rem] text-sm">
           <thead>
             <tr className="text-left text-xs uppercase tracking-wide text-muted">
               <th className="pb-2 font-medium">Date</th>
@@ -221,6 +222,7 @@ export default async function ExerciseHistoryPage({
             })}
           </tbody>
         </table>
+        </div>
       </Card>
     </div>
   );

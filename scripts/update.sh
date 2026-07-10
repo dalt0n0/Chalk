@@ -26,6 +26,9 @@ npm ci --no-audit --no-fund >/dev/null
 log "Applying database migrations..."
 npx prisma migrate deploy
 
+log "Refreshing the community program library..."
+npm run --silent db:seed
+
 log "Rebuilding..."
 npm run --silent build
 

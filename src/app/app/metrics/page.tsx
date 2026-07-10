@@ -76,9 +76,9 @@ export default async function MetricsPage() {
       </div>
 
       {metrics.length > 0 && (
-        <Card>
+        <Card className="overflow-x-auto">
           <CardTitle>Entries</CardTitle>
-          <table className="mt-4 w-full text-sm">
+          <table className="mt-4 w-full min-w-[28rem] text-sm">
             <thead>
               <tr className="text-left text-xs uppercase tracking-wide text-muted">
                 <th className="pb-2 font-medium">Date</th>

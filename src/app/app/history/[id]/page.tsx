@@ -58,9 +58,9 @@ export default async function WorkoutDetailPage({
 
       <div className="space-y-4">
         {groups.map((g, gi) => (
-          <Card key={gi} className="p-4">
+          <Card key={gi} className="overflow-x-auto p-4">
             <h2 className="font-semibold">{g.name}</h2>
-            <table className="mt-3 w-full text-sm">
+            <table className="mt-3 w-full min-w-[28rem] text-sm">
               <thead>
                 <tr className="text-left text-xs uppercase tracking-wide text-muted">
                   <th className="pb-2 font-medium">Set</th>

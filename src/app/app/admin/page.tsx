@@ -73,13 +73,13 @@ export default async function AdminPage() {
         </div>
       </Card>
 
-      <Card className="p-0">
+      <Card className="overflow-x-auto p-0">
         <div className="px-5 pt-5">
           <CardTitle>
             Users ({users.length})
           </CardTitle>
         </div>
-        <table className="mt-3 w-full text-sm">
+        <table className="mt-3 w-full min-w-[42rem] text-sm">
           <thead>
             <tr className="text-left text-xs uppercase tracking-wide text-muted">
               <th className="px-5 py-2 font-medium">User</th>
