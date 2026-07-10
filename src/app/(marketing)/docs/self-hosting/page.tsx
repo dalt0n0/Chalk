@@ -176,8 +176,12 @@ INSTANCE_API_KEY="lfi_..."
       <Section title="Production checklist">
         <ul className="list-inside list-disc space-y-1.5">
           <li>
-            Serve behind HTTPS (Caddy or nginx in front of port 3000). The
-            session cookie is Secure in production.
+            Serve behind HTTPS (Caddy or nginx in front of port 3000) and make
+            sure the proxy sends{" "}
+            <code className="font-mono text-text">X-Forwarded-Proto</code>{" "}
+            (Caddy and nginx defaults do). The session cookie is marked Secure
+            when requests arrive over HTTPS. Plain HTTP on a LAN works too;
+            the cookie is simply not Secure there.
           </li>
           <li>
             Back up the database. On SQLite that is the single{" "}

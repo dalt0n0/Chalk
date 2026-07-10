@@ -1,6 +1,6 @@
 import "server-only";
 import { createHash, randomBytes } from "crypto";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { cache } from "react";
 import { db } from "@/lib/db";
@@ -13,6 +13,18 @@ const RENEW_THRESHOLD_MS = SESSION_TTL_MS / 2;
 
 function hashToken(token: string): string {
   return createHash("sha256").update(token).digest("hex");
+}
+
+/**
+ * Mark the cookie Secure only when the request actually arrived over HTTPS
+ * (TLS terminates at a reverse proxy, which sets x-forwarded-proto).
+ * Keying this off NODE_ENV broke plain-HTTP LAN deploys: browsers silently
+ * drop Secure cookies on http:// origins other than localhost, so logins
+ * appeared to succeed but no session ever stuck.
+ */
+async function cookieSecure(): Promise<boolean> {
+  const h = await headers();
+  return h.get("x-forwarded-proto")?.split(",")[0]?.trim() === "https";
 }
 
 export async function createSession(userId: string, userAgent?: string) {
@@ -29,7 +41,7 @@ export async function createSession(userId: string, userAgent?: string) {
   const cookieStore = await cookies();
   cookieStore.set(COOKIE_NAME, token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: await cookieSecure(),
     sameSite: "lax",
     path: "/",
     expires: expiresAt,
