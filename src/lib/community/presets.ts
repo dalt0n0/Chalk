@@ -314,85 +314,69 @@ days:
     author: "Cody Lefever (adaptation)",
     tags: "beginner,intermediate,strength,barbell,4-day,1rm",
     description:
-      "Cody Lefever's linear program built on the GZCL pyramid: heavy T1 with an AMRAP top set, volume T2, and high-rep T3 accessories. T1 and T2 weights come from each lift's 1RM.",
+      "Cody Lefever's linear program built on the GZCL pyramid: heavy T1 with an AMRAP top set, volume T2, and high-rep T3 accessories. You set one 1RM per lift; the heavy and volume work both come from it.",
     yaml: `name: GZCLP
-description: "Four-day GZCL linear progression. T1: 5 sets of 3 at 85% of rm1 with an AMRAP last set. T2: 3x10 at 65% of its own rm1. T3: 3x15 with an AMRAP last set; add weight when the AMRAP hits 25. Set your real 1RMs before starting (1RMs page). Success raises rm1; two failed T1 sessions deload it 10%."
+description: "Four-day GZCL linear progression. One 1RM per lift: the heavy work (T1, 5x3 with an AMRAP last set at 85%) and the volume work (T2, 3x10 at 65%) both come from the same number, so you only set four 1RMs. Set them before starting (1RMs page). Each lift's 1RM rises on its heavy day; two failed heavy sessions deload it 10%. T3 accessories add weight when the AMRAP hits 25."
 author: Cody Lefever (adaptation)
 units: lb
 rounding: 5
 exercises:
   squat:
-    name: Barbell Squat (T1)
-    state: { rm1: 160, failures: 0 }
+    name: Barbell Squat
+    state: { rm1: 185, failures: 0 }
     progress:
       type: script
-      onComplete: rm1 += 12
+      onComplete: if (day == 1) { rm1 += 12 }
       onFail: |
-        failures += 1
-        if (failures >= 2) {
-          rm1 = roundTo(rm1 * 0.9, 5)
-          failures = 0
+        if (day == 1) {
+          failures += 1
+          if (failures >= 2) {
+            rm1 = roundTo(rm1 * 0.9, 5)
+            failures = 0
+          }
+        }
+  ohp:
+    name: Overhead Press
+    state: { rm1: 95, failures: 0 }
+    progress:
+      type: script
+      onComplete: if (day == 2) { rm1 += 6 }
+      onFail: |
+        if (day == 2) {
+          failures += 1
+          if (failures >= 2) {
+            rm1 = roundTo(rm1 * 0.9, 5)
+            failures = 0
+          }
         }
   bench:
-    name: Bench Press (T1)
+    name: Bench Press
     state: { rm1: 135, failures: 0 }
     progress:
       type: script
-      onComplete: rm1 += 6
+      onComplete: if (day == 3) { rm1 += 6 }
       onFail: |
-        failures += 1
-        if (failures >= 2) {
-          rm1 = roundTo(rm1 * 0.9, 5)
-          failures = 0
-        }
-  ohp:
-    name: Overhead Press (T1)
-    state: { rm1: 90, failures: 0 }
-    progress:
-      type: script
-      onComplete: rm1 += 6
-      onFail: |
-        failures += 1
-        if (failures >= 2) {
-          rm1 = roundTo(rm1 * 0.9, 5)
-          failures = 0
+        if (day == 3) {
+          failures += 1
+          if (failures >= 2) {
+            rm1 = roundTo(rm1 * 0.9, 5)
+            failures = 0
+          }
         }
   deadlift:
-    name: Deadlift (T1)
-    state: { rm1: 220, failures: 0 }
+    name: Deadlift
+    state: { rm1: 225, failures: 0 }
     progress:
       type: script
-      onComplete: rm1 += 12
+      onComplete: if (day == 4) { rm1 += 12 }
       onFail: |
-        failures += 1
-        if (failures >= 2) {
-          rm1 = roundTo(rm1 * 0.9, 5)
-          failures = 0
+        if (day == 4) {
+          failures += 1
+          if (failures >= 2) {
+            rm1 = roundTo(rm1 * 0.9, 5)
+            failures = 0
+          }
         }
-  bench_t2:
-    name: Bench Press (T2)
-    state: { rm1: 130 }
-    progress:
-      type: script
-      onComplete: rm1 += 8
-  squat_t2:
-    name: Barbell Squat (T2)
-    state: { rm1: 145 }
-    progress:
-      type: script
-      onComplete: rm1 += 8
-  ohp_t2:
-    name: Overhead Press (T2)
-    state: { rm1: 85 }
-    progress:
-      type: script
-      onComplete: rm1 += 8
-  deadlift_t2:
-    name: Deadlift (T2)
-    state: { rm1: 210 }
-    progress:
-      type: script
-      onComplete: rm1 += 8
   lat_pulldown:
     name: Lat Pulldown (T3)
     state: { weight: 70 }
@@ -410,32 +394,40 @@ days:
     blocks:
       - exercise: squat
         sets: "4x3 @ rm1*0.85, 3+ @ rm1*0.85"
-      - exercise: bench_t2
+        notes: T1 heavy
+      - exercise: bench
         sets: 3x10 @ rm1*0.65
+        notes: T2 volume
       - exercise: lat_pulldown
         sets: "2x15 @ weight, 15+ @ weight"
   - name: "Day 2: OHP focus"
     blocks:
       - exercise: ohp
         sets: "4x3 @ rm1*0.85, 3+ @ rm1*0.85"
-      - exercise: deadlift_t2
+        notes: T1 heavy
+      - exercise: deadlift
         sets: 3x10 @ rm1*0.65
+        notes: T2 volume
       - exercise: row_t3
         sets: "2x15 @ weight, 15+ @ weight"
   - name: "Day 3: Bench focus"
     blocks:
       - exercise: bench
         sets: "4x3 @ rm1*0.85, 3+ @ rm1*0.85"
-      - exercise: squat_t2
+        notes: T1 heavy
+      - exercise: squat
         sets: 3x10 @ rm1*0.65
+        notes: T2 volume
       - exercise: lat_pulldown
         sets: "2x15 @ weight, 15+ @ weight"
   - name: "Day 4: Deadlift focus"
     blocks:
       - exercise: deadlift
         sets: "4x3 @ rm1*0.85, 3+ @ rm1*0.85"
-      - exercise: ohp_t2
+        notes: T1 heavy
+      - exercise: ohp
         sets: 3x10 @ rm1*0.65
+        notes: T2 volume
       - exercise: row_t3
         sets: "2x15 @ weight, 15+ @ weight"
 `,
